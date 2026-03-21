@@ -52,3 +52,7 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+
+# React
+**/node_modules/
+src/currenly.web/package-lock.json
