@@ -19,7 +19,7 @@ export function App() {
         />
         <CurrencyGraphy fromCurrency={fromCurrency} toCurrency={toCurrency} />
       </main>
-      <footer className="border-t px-6 py-4 text-center text-xs text-muted-foreground">
+      <footer className="border-t border-border/50 px-6 py-4 text-center text-xs text-muted-foreground/70">
         &copy; {new Date().getFullYear()} Currenly. All rights reserved.
       </footer>
     </div>

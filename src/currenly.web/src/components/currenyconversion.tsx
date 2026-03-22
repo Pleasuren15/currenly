@@ -34,6 +34,7 @@ const CurrencyConversion = ({ fromCurrency, toCurrency, onFromCurrencyChange, on
     const [rates, setRates] = useState<RatesResponse | null>(null)
     const [fromAmount, setFromAmount] = useState("1")
     const [toAmount, setToAmount] = useState("")
+    const [isLoadingRates, setIsLoadingRates] = useState(true)
     const fetchedRef = useRef(false)
 
     useEffect(() => {
@@ -55,12 +56,20 @@ const CurrencyConversion = ({ fromCurrency, toCurrency, onFromCurrencyChange, on
 
     useEffect(() => {
         const fetchRates = async () => {
+            setIsLoadingRates(true)
+            const minDelay = new Promise(r => setTimeout(r, 1000))
             try {
-                const response = await fetch(`https://api.frankfurter.dev/v1/latest?base=${fromCurrency}`)
+                const [response] = await Promise.all([
+                    fetch(`https://api.frankfurter.dev/v1/latest?base=${fromCurrency}`),
+                    minDelay,
+                ])
                 const data: RatesResponse = await response.json()
                 setRates(data)
             } catch (error) {
                 console.error("Error fetching rates:", error)
+                await minDelay
+            } finally {
+                setIsLoadingRates(false)
             }
         }
 
@@ -119,70 +128,96 @@ const CurrencyConversion = ({ fromCurrency, toCurrency, onFromCurrencyChange, on
     }
 
     return (
-        <div>
-            <div className="mx-auto px-6 py-4">
-                <div className="mx-auto flex w-full items-center justify-between">
-                    <p className="text-sm">{fromAmount || "1"} {currencies[fromCurrency] ?? fromCurrency} equals</p>
-                    <button className="flex items-center gap-1.5 text-sm text-primary cursor-pointer">
-                        <Share2 size={16} />
+        <section className="bg-gradient-to-br from-hero-from to-hero-to px-6 py-8 text-white">
+            <div className="mx-auto max-w-2xl">
+                <p className="text-sm text-white/70">{fromAmount || "1"} {currencies[fromCurrency] ?? fromCurrency} equals</p>
+                <div className="flex items-baseline justify-between gap-4 mt-1">
+                    {isLoadingRates ? (
+                        <div className="flex items-baseline gap-3">
+                            <div className="skeleton-hero h-9 w-48 sm:h-10" />
+                            <div className="skeleton-hero h-7 w-12" />
+                        </div>
+                    ) : (
+                        <h2 className="text-3xl font-bold tabular-nums tracking-tight sm:text-4xl animate-fade-in">
+                            {toAmount || "—"} <span className="text-white/80 font-medium">{toCurrency}</span>
+                        </h2>
+                    )}
+                    <button className="flex items-center gap-1.5 text-xs text-white/50 cursor-pointer hover:text-white/80 transition-colors">
+                        <Share2 size={14} />
                         share
                     </button>
                 </div>
-                <div className="flex w-full items-center justify-between">
-                    <h1 className="text-2xl">{toAmount || "—"} {currencies[toCurrency] ?? toCurrency} ({toCurrency})</h1>
-                </div>
-                <p className="text-xs">{rates?.date ?? "—"} <a target="_blank" className="text-primary font-bold" href="https://frankfurter.dev/">Frankfurter API</a></p>
-            </div>
+                {isLoadingRates ? (
+                    <div className="skeleton-hero h-3 w-56 mt-2" />
+                ) : (
+                    <p className="text-xs text-white/50 mt-1 animate-fade-in">
+                        {currencies[toCurrency] ?? toCurrency} &middot; {rates?.date ?? "—"} &middot;{" "}
+                        <a target="_blank" className="underline underline-offset-2 hover:text-white/80" href="https://frankfurter.dev/">Frankfurter</a>
+                    </p>
+                )}
 
-            <div className="mx-auto flex items-center gap-2 px-6">
-                <InputGroup className="flex-1 border-none shadow-none rounded-none ring-0">
-                    <InputGroupInput placeholder="Amount" type="number" value={fromAmount} onChange={handleFromAmountChange} />
-                    <InputGroupAddon align="inline-end">
-                        <DropdownMenu>
-                            <DropdownMenuTrigger className="flex cursor-pointer items-center gap-1 px-3 py-1.5 pr-1.5 text-xs">
-                                {fromCurrency}
-                                <ChevronDownIcon className="size-3" />
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="[--radius:0.95rem]">
-                                <DropdownMenuGroup>
-                                    {Object.entries(currencies).map(([code]) => (
-                                        <DropdownMenuItem key={code} onClick={() => handleFromChange(code)}>
-                                            {code}
-                                        </DropdownMenuItem>
-                                    ))}
-                                </DropdownMenuGroup>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    </InputGroupAddon>
-                </InputGroup>
-                <button
-                    onClick={handleSwap}
-                    className="flex shrink-0 items-center justify-center cursor-pointer text-muted-foreground transition-colors hover:text-primary"
-                >
-                    <ArrowLeftRight size={18} />
-                </button>
-                <InputGroup className="flex-1 border-none shadow-none rounded-none ring-0">
-                    <InputGroupInput placeholder="Amount" type="number" value={toAmount} onChange={handleToAmountChange} />
-                    <InputGroupAddon align="inline-end">
-                        <DropdownMenu>
-                            <DropdownMenuTrigger className="flex cursor-pointer items-center gap-1 px-3 py-1.5 pr-1.5 text-xs">
-                                {toCurrency}
-                                <ChevronDownIcon className="size-3" />
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="[--radius:0.95rem]">
-                                <DropdownMenuGroup>
-                                    {Object.entries(currencies).map(([code]) => (
-                                        <DropdownMenuItem key={code} onClick={() => handleToChange(code)}>
-                                            {code}
-                                        </DropdownMenuItem>
-                                    ))}
-                                </DropdownMenuGroup>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    </InputGroupAddon>
-                </InputGroup>
+                <div className="mt-6 flex items-center gap-2">
+                    <InputGroup className="flex-1 border-white/20 bg-white/10 shadow-none ring-0">
+                        <InputGroupInput
+                            placeholder="Amount"
+                            type="number"
+                            value={fromAmount}
+                            onChange={handleFromAmountChange}
+                            className="text-white placeholder:text-white/40"
+                        />
+                        <InputGroupAddon align="inline-end">
+                            <DropdownMenu>
+                                <DropdownMenuTrigger className="flex cursor-pointer items-center gap-1 px-3 py-1.5 pr-1.5 text-xs font-semibold text-white/90">
+                                    {fromCurrency}
+                                    <ChevronDownIcon className="size-3" />
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                    <DropdownMenuGroup>
+                                        {Object.entries(currencies).map(([code]) => (
+                                            <DropdownMenuItem key={code} onClick={() => handleFromChange(code)}>
+                                                {code}
+                                            </DropdownMenuItem>
+                                        ))}
+                                    </DropdownMenuGroup>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </InputGroupAddon>
+                    </InputGroup>
+                    <button
+                        onClick={handleSwap}
+                        className="flex shrink-0 size-8 items-center justify-center bg-white/10 cursor-pointer text-white/70 transition-colors hover:bg-white/20 hover:text-white"
+                    >
+                        <ArrowLeftRight size={16} />
+                    </button>
+                    <InputGroup className="flex-1 border-white/20 bg-white/10 shadow-none ring-0">
+                        <InputGroupInput
+                            placeholder="Amount"
+                            type="number"
+                            value={toAmount}
+                            onChange={handleToAmountChange}
+                            className="text-white placeholder:text-white/40"
+                        />
+                        <InputGroupAddon align="inline-end">
+                            <DropdownMenu>
+                                <DropdownMenuTrigger className="flex cursor-pointer items-center gap-1 px-3 py-1.5 pr-1.5 text-xs font-semibold text-white/90">
+                                    {toCurrency}
+                                    <ChevronDownIcon className="size-3" />
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                    <DropdownMenuGroup>
+                                        {Object.entries(currencies).map(([code]) => (
+                                            <DropdownMenuItem key={code} onClick={() => handleToChange(code)}>
+                                                {code}
+                                            </DropdownMenuItem>
+                                        ))}
+                                    </DropdownMenuGroup>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </InputGroupAddon>
+                    </InputGroup>
+                </div>
             </div>
-        </div>
+        </section>
     )
 }
 
