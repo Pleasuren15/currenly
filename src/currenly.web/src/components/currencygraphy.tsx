@@ -132,7 +132,7 @@ const CurrencyGraphy = ({ fromCurrency, toCurrency }: CurrencyGraphyProps) => {
     const [selectedTab, setSelectedTab] = useState(dateOptions[0].display)
     const [dateRange, setDateRange] = useState(() => getDateRange(dateOptions[0].value))
     const [chartData, setChartData] = useState<ChartDataPoint[]>([])
-
+    const [changeMode, setChangeMode] = useState<"absolute" | "percent">("absolute")
     const chartConfig = {
         rate: {
             label: toCurrency,
@@ -231,39 +231,54 @@ const CurrencyGraphy = ({ fromCurrency, toCurrency }: CurrencyGraphyProps) => {
                             {([
                                 { label: "Open", num: stats.open, icon: ArrowUpRight },
                                 { label: "Close", num: stats.close, icon: ArrowDownRight },
-                                {
-                                    label: "Change",
-                                    num: stats.change,
-                                    pct: stats.changePercent,
-                                    color: stats.change >= 0 ? "text-green-600" : "text-red-500",
-                                    iconColor: stats.change >= 0 ? "text-green-600" : "text-red-500",
-                                    icon: stats.change >= 0 ? TrendingUp : TrendingDown,
-                                },
                                 { label: "High", num: stats.high, icon: ArrowUp, iconColor: "text-green-600" },
                                 { label: "Low", num: stats.low, icon: ArrowDown, iconColor: "text-red-500" },
                                 { label: "Average", num: stats.average, icon: TrendingUp },
-                            ] as const).map(({ label, num, icon: Icon, color, iconColor, ...rest }) => (
+                            ] as const).map(({ label, num, icon: Icon, iconColor }) => (
                                 <Card key={label} className="rounded-none">
                                     <CardContent className="p-3">
                                         <div className="flex items-center justify-between">
                                             <span className="text-muted-foreground text-[11px] uppercase tracking-wide">{label}</span>
                                             <Icon className={`size-3.5 ${iconColor ?? "text-muted-foreground"}`} />
                                         </div>
-                                        <div className={`text-sm font-semibold tabular-nums mt-1 ${color ?? ""}`}>
-                                            {"pct" in rest ? (
-                                                <>
-                                                    <AnimatedStat value={num} prefix={num >= 0 ? "+" : ""} />
-                                                    {" ("}
-                                                    <AnimatedStat value={rest.pct} decimals={2} prefix={rest.pct >= 0 ? "+" : ""} suffix="%" />
-                                                    {")"}
-                                                </>
-                                            ) : (
-                                                <AnimatedStat value={num} />
-                                            )}
+                                        <div className="text-sm font-semibold tabular-nums mt-1">
+                                            <AnimatedStat value={num} />
                                         </div>
                                     </CardContent>
                                 </Card>
                             ))}
+                            <Card className="rounded-none">
+                                <CardContent className="p-3">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex gap-1.5">
+                                            <button
+                                                onClick={() => setChangeMode("absolute")}
+                                                className={`text-[11px] uppercase tracking-wide cursor-pointer ${changeMode === "absolute" ? "text-foreground font-semibold" : "text-muted-foreground"}`}
+                                            >
+                                                Chg
+                                            </button>
+                                            <span className="text-muted-foreground text-[11px]">/</span>
+                                            <button
+                                                onClick={() => setChangeMode("percent")}
+                                                className={`text-[11px] uppercase tracking-wide cursor-pointer ${changeMode === "percent" ? "text-foreground font-semibold" : "text-muted-foreground"}`}
+                                            >
+                                                Chg%
+                                            </button>
+                                        </div>
+                                        {stats.change >= 0
+                                            ? <TrendingUp className="size-3.5 text-green-600" />
+                                            : <TrendingDown className="size-3.5 text-red-500" />
+                                        }
+                                    </div>
+                                    <div className={`inline-block rounded-sm px-1.5 py-0.5 text-sm font-semibold tabular-nums mt-1 ${stats.change >= 0 ? "text-green-600 bg-green-500/10" : "text-red-500 bg-red-500/10"}`}>
+                                        {changeMode === "absolute" ? (
+                                            <AnimatedStat value={stats.change} prefix={stats.change >= 0 ? "+" : ""} />
+                                        ) : (
+                                            <AnimatedStat value={stats.changePercent} decimals={2} prefix={stats.changePercent >= 0 ? "+" : ""} suffix="%" />
+                                        )}
+                                    </div>
+                                </CardContent>
+                            </Card>
                         </div>
                     )}
                 </TabsContent>
