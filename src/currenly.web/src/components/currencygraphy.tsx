@@ -188,7 +188,7 @@ const CurrencyGraphy = ({ fromCurrency, toCurrency }: CurrencyGraphyProps) => {
 
     return (
         <div className="px-6">
-            <Tabs defaultValue={dateOptions[0].display} className="w-full py-4" onValueChange={handleTabChange}>
+            <Tabs value={selectedTab} className="w-full py-4" onValueChange={handleTabChange}>
                 <TabsList className="w-full">
                     {dateOptions.map(option => (
                         <TabsTrigger key={option.value} value={option.display}>{option.display}</TabsTrigger>
@@ -227,14 +227,14 @@ const CurrencyGraphy = ({ fromCurrency, toCurrency }: CurrencyGraphyProps) => {
                     </ChartContainer>
                     </FadeIn>
                     {stats && (
-                        <div className="grid grid-cols-3 gap-3 pt-4">
+                        <div className="grid grid-cols-2 gap-3 pt-4 sm:grid-cols-3">
                             {([
-                                { label: "Open", num: stats.open, icon: ArrowUpRight },
-                                { label: "Close", num: stats.close, icon: ArrowDownRight },
+                                { label: "Open", num: stats.open, icon: ArrowUpRight, iconColor: undefined as string | undefined },
+                                { label: "Close", num: stats.close, icon: ArrowDownRight, iconColor: undefined as string | undefined },
                                 { label: "High", num: stats.high, icon: ArrowUp, iconColor: "text-green-600" },
                                 { label: "Low", num: stats.low, icon: ArrowDown, iconColor: "text-red-500" },
-                                { label: "Average", num: stats.average, icon: TrendingUp },
-                            ] as const).map(({ label, num, icon: Icon, iconColor }) => (
+                                { label: "Average", num: stats.average, icon: TrendingUp, iconColor: undefined as string | undefined },
+                            ]).map(({ label, num, icon: Icon, iconColor }) => (
                                 <Card key={label} className="rounded-none">
                                     <CardContent className="p-3">
                                         <div className="flex items-center justify-between">

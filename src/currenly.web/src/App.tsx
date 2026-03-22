@@ -8,7 +8,7 @@ export function App() {
   const [toCurrency, setToCurrency] = useState("ZAR")
 
   return (
-    <div className="flex h-screen flex-col overflow-auto">
+    <div className="flex min-h-screen flex-col">
       <Navbar />
       <main className="flex-1">
         <CurrencyConversion

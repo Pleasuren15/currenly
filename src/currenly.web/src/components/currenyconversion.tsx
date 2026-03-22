@@ -1,4 +1,4 @@
-import { Share2, ChevronDownIcon } from "lucide-react"
+import { Share2, ChevronDownIcon, ArrowLeftRight } from "lucide-react"
 import {
     InputGroup,
     InputGroupAddon,
@@ -113,12 +113,17 @@ const CurrencyConversion = ({ fromCurrency, toCurrency, onFromCurrencyChange, on
         onToCurrencyChange(code)
     }
 
+    const handleSwap = () => {
+        onFromCurrencyChange(toCurrency)
+        onToCurrencyChange(fromCurrency)
+    }
+
     return (
         <div>
             <div className="mx-auto px-6 py-4">
                 <div className="mx-auto flex w-full items-center justify-between">
                     <p className="text-sm">{fromAmount || "1"} {currencies[fromCurrency] ?? fromCurrency} equals</p>
-                    <button className="flex items-center gap-1.5 text-sm text-blue-500 cursor-pointer">
+                    <button className="flex items-center gap-1.5 text-sm text-primary cursor-pointer">
                         <Share2 size={16} />
                         share
                     </button>
@@ -126,11 +131,11 @@ const CurrencyConversion = ({ fromCurrency, toCurrency, onFromCurrencyChange, on
                 <div className="flex w-full items-center justify-between">
                     <h1 className="text-2xl">{toAmount || "—"} {currencies[toCurrency] ?? toCurrency} ({toCurrency})</h1>
                 </div>
-                <p className="text-xs">{rates?.date ?? "—"} <a target="_blank" className="text-blue-500  font-bold" href="https://frankfurter.dev/">Frankfurter API</a></p>
+                <p className="text-xs">{rates?.date ?? "—"} <a target="_blank" className="text-primary font-bold" href="https://frankfurter.dev/">Frankfurter API</a></p>
             </div>
 
-            <div className="mx-auto flex gap-4 px-6">
-                <InputGroup className="border-none shadow-none rounded-none ring-0">
+            <div className="mx-auto flex items-center gap-2 px-6">
+                <InputGroup className="flex-1 border-none shadow-none rounded-none ring-0">
                     <InputGroupInput placeholder="Amount" type="number" value={fromAmount} onChange={handleFromAmountChange} />
                     <InputGroupAddon align="inline-end">
                         <DropdownMenu>
@@ -150,7 +155,13 @@ const CurrencyConversion = ({ fromCurrency, toCurrency, onFromCurrencyChange, on
                         </DropdownMenu>
                     </InputGroupAddon>
                 </InputGroup>
-                <InputGroup className="border-none shadow-none rounded-none ring-0">
+                <button
+                    onClick={handleSwap}
+                    className="flex shrink-0 items-center justify-center cursor-pointer text-muted-foreground transition-colors hover:text-primary"
+                >
+                    <ArrowLeftRight size={18} />
+                </button>
+                <InputGroup className="flex-1 border-none shadow-none rounded-none ring-0">
                     <InputGroupInput placeholder="Amount" type="number" value={toAmount} onChange={handleToAmountChange} />
                     <InputGroupAddon align="inline-end">
                         <DropdownMenu>
