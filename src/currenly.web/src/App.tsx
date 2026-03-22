@@ -1,3 +1,4 @@
+import CurrencyGraphy from "./components/currencygraphy"
 import CurrencyConversion from "./components/currenyconversion"
 import Navbar from "./components/navbar"
 
@@ -6,6 +7,7 @@ export function App() {
     <div>
       <Navbar />
       <CurrencyConversion />
+      <CurrencyGraphy />
     </div>
   )
 }
