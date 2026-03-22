@@ -120,7 +120,7 @@ function FadeIn({ children, changeKey }: { children: React.ReactNode; changeKey:
 
     return (
         <div
-            className="transition-all duration-500 ease-out"
+            className="h-full transition-all duration-500 ease-out"
             style={{ opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(8px)" }}
         >
             {children}
@@ -130,8 +130,7 @@ function FadeIn({ children, changeKey }: { children: React.ReactNode; changeKey:
 
 function ChartSkeleton() {
     return (
-        <div className="h-[280px] w-full flex flex-col justify-end gap-1 px-2 pb-6 pt-4">
-            {/* Fake chart bars that shimmer */}
+        <div className="flex h-full w-full flex-col justify-end gap-1 px-1 pb-4 pt-2">
             <div className="flex items-end gap-[3px] h-full">
                 {Array.from({ length: 32 }).map((_, i) => {
                     const heights = [45, 52, 48, 60, 55, 65, 58, 70, 62, 75, 68, 72, 78, 74, 80, 76, 82, 85, 78, 88, 82, 90, 85, 88, 92, 86, 94, 90, 88, 92, 86, 90]
@@ -147,11 +146,10 @@ function ChartSkeleton() {
                     )
                 })}
             </div>
-            {/* Fake axis labels */}
-            <div className="flex justify-between pt-2">
-                <div className="skeleton h-2.5 w-12" />
-                <div className="skeleton h-2.5 w-12" />
-                <div className="skeleton h-2.5 w-12" />
+            <div className="flex justify-between pt-1">
+                <div className="skeleton h-2 w-10" />
+                <div className="skeleton h-2 w-10" />
+                <div className="skeleton h-2 w-10" />
             </div>
         </div>
     )
@@ -225,26 +223,26 @@ const CurrencyGraphy = ({ fromCurrency, toCurrency }: CurrencyGraphyProps) => {
     const chartKey = `${dateRange.startDate}-${dateRange.endDate}-${fromCurrency}-${toCurrency}`
 
     return (
-        <section className="mx-auto max-w-2xl px-6 py-6">
-            <Card className="overflow-hidden">
-                <CardContent className="p-0">
-                    <Tabs value={selectedTab} className="w-full" onValueChange={handleTabChange}>
-                        <div className="flex items-center justify-between border-b px-4 py-3">
-                            <h3 className="text-sm font-semibold">{fromCurrency}/{toCurrency} Rate</h3>
-                            <TabsList className="h-7 bg-muted/60 p-0.5">
+        <section className="mx-auto flex w-full max-w-2xl flex-1 flex-col overflow-hidden px-4 py-3">
+            <Card className="flex flex-1 flex-col overflow-hidden">
+                <CardContent className="flex flex-1 flex-col overflow-hidden p-0">
+                    <Tabs value={selectedTab} className="flex w-full flex-1 flex-col overflow-hidden" onValueChange={handleTabChange}>
+                        <div className="flex items-center justify-between border-b px-3 py-2">
+                            <h3 className="text-xs font-semibold">{fromCurrency}/{toCurrency} Rate</h3>
+                            <TabsList className="h-6 bg-muted/60 p-0.5">
                                 {dateOptions.map(option => (
-                                    <TabsTrigger key={option.value} value={option.display} className="text-xs px-2.5 py-1 h-6">
+                                    <TabsTrigger key={option.value} value={option.display} className="text-[10px] px-2 py-0.5 h-5">
                                         {option.display}
                                     </TabsTrigger>
                                 ))}
                             </TabsList>
                         </div>
-                        <TabsContent value={selectedTab} className="px-4 pt-4 pb-2">
+                        <TabsContent value={selectedTab} className="flex-1 overflow-hidden px-3 pt-2 pb-1">
                             {isLoading ? (
                                 <ChartSkeleton />
                             ) : (
                                 <FadeIn changeKey={chartKey}>
-                                    <ChartContainer config={chartConfig} className="h-[280px] w-full">
+                                    <ChartContainer config={chartConfig} className="h-full w-full">
                                         <LineChart data={chartData} accessibilityLayer>
                                             <defs>
                                                 <linearGradient id="rateGradient" x1="0" y1="0" x2="0" y2="1">
@@ -293,7 +291,7 @@ const CurrencyGraphy = ({ fromCurrency, toCurrency }: CurrencyGraphyProps) => {
             </Card>
 
             {isLoading ? (
-                <div className="grid grid-cols-3 gap-2 pt-4">
+                <div className="grid grid-cols-3 gap-2 pt-2">
                     {Array.from({ length: 6 }).map((_, i) => (
                         <Card key={i} size="sm" className="border-l-2 border-l-primary/30">
                             <CardContent className="px-2.5 py-0">
@@ -301,13 +299,13 @@ const CurrencyGraphy = ({ fromCurrency, toCurrency }: CurrencyGraphyProps) => {
                                     <div className="skeleton h-2.5 w-10" />
                                     <div className="skeleton size-3" />
                                 </div>
-                                <div className="skeleton h-3.5 w-16 mt-1" />
+                                <div className="skeleton h-3.5 w-16 mt-0.5" />
                             </CardContent>
                         </Card>
                     ))}
                 </div>
             ) : stats && (
-                <div className="grid grid-cols-3 gap-2 pt-4 animate-fade-in">
+                <div className="grid grid-cols-3 gap-2 pt-2 animate-fade-in">
                     {([
                         { label: "Open", num: stats.open, icon: ArrowUpRight, iconColor: undefined as string | undefined },
                         { label: "Close", num: stats.close, icon: ArrowDownRight, iconColor: undefined as string | undefined },

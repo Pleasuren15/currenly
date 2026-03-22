@@ -1,5 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import * as React from "react"
+import { COLOR_SCHEMES, DEFAULT_SCHEME, SCHEME_KEYS, generateLightVars, generateDarkVars, type ColorSchemeKey } from "@/lib/color-schemes"
 
 type Theme = "dark" | "light" | "system"
 type ResolvedTheme = "dark" | "light"
@@ -8,12 +9,15 @@ type ThemeProviderProps = {
   children: React.ReactNode
   defaultTheme?: Theme
   storageKey?: string
+  schemeStorageKey?: string
   disableTransitionOnChange?: boolean
 }
 
 type ThemeProviderState = {
   theme: Theme
   setTheme: (theme: Theme) => void
+  colorScheme: ColorSchemeKey
+  setColorScheme: (scheme: ColorSchemeKey) => void
 }
 
 const COLOR_SCHEME_QUERY = "(prefers-color-scheme: dark)"
@@ -29,6 +33,11 @@ function isTheme(value: string | null): value is Theme {
   }
 
   return THEME_VALUES.includes(value as Theme)
+}
+
+function isColorScheme(value: string | null): value is ColorSchemeKey {
+  if (value === null) return false
+  return SCHEME_KEYS.includes(value as ColorSchemeKey)
 }
 
 function getSystemTheme(): ResolvedTheme {
@@ -81,6 +90,7 @@ export function ThemeProvider({
   children,
   defaultTheme = "system",
   storageKey = "theme",
+  schemeStorageKey = "color-scheme",
   disableTransitionOnChange = true,
   ...props
 }: ThemeProviderProps) {
@@ -93,6 +103,14 @@ export function ThemeProvider({
     return defaultTheme
   })
 
+  const [colorScheme, setColorSchemeState] = React.useState<ColorSchemeKey>(() => {
+    const stored = localStorage.getItem(schemeStorageKey)
+    if (isColorScheme(stored)) {
+      return stored
+    }
+    return DEFAULT_SCHEME
+  })
+
   const setTheme = React.useCallback(
     (nextTheme: Theme) => {
       localStorage.setItem(storageKey, nextTheme)
@@ -100,6 +118,30 @@ export function ThemeProvider({
     },
     [storageKey]
   )
+
+  const setColorScheme = React.useCallback(
+    (scheme: ColorSchemeKey) => {
+      localStorage.setItem(schemeStorageKey, scheme)
+      setColorSchemeState(scheme)
+    },
+    [schemeStorageKey]
+  )
+
+  // Apply color scheme CSS variables
+  const applyColorScheme = React.useCallback((schemeKey: ColorSchemeKey, resolvedTheme: ResolvedTheme) => {
+    const root = document.documentElement
+    const scheme = COLOR_SCHEMES[schemeKey]
+    const vars = resolvedTheme === "dark" ? generateDarkVars(scheme) : generateLightVars(scheme)
+    for (const [prop, value] of Object.entries(vars)) {
+      root.style.setProperty(prop, value)
+    }
+  }, [])
+
+  // Re-apply scheme vars when scheme or theme changes
+  React.useEffect(() => {
+    const resolvedTheme = theme === "system" ? getSystemTheme() : theme
+    applyColorScheme(colorScheme, resolvedTheme)
+  }, [colorScheme, theme, applyColorScheme])
 
   const applyTheme = React.useCallback(
     (nextTheme: Theme) => {
@@ -130,6 +172,7 @@ export function ThemeProvider({
     const mediaQuery = window.matchMedia(COLOR_SCHEME_QUERY)
     const handleChange = () => {
       applyTheme("system")
+      applyColorScheme(colorScheme, getSystemTheme())
     }
 
     mediaQuery.addEventListener("change", handleChange)
@@ -137,7 +180,7 @@ export function ThemeProvider({
     return () => {
       mediaQuery.removeEventListener("change", handleChange)
     }
-  }, [theme, applyTheme])
+  }, [theme, applyTheme, colorScheme, applyColorScheme])
 
   React.useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -208,8 +251,10 @@ export function ThemeProvider({
     () => ({
       theme,
       setTheme,
+      colorScheme,
+      setColorScheme,
     }),
-    [theme, setTheme]
+    [theme, setTheme, colorScheme, setColorScheme]
   )
 
   return (

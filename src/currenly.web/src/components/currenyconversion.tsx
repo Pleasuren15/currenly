@@ -128,35 +128,35 @@ const CurrencyConversion = ({ fromCurrency, toCurrency, onFromCurrencyChange, on
     }
 
     return (
-        <section className="bg-gradient-to-br from-hero-from to-hero-to px-6 py-8 text-white">
+        <section className="bg-gradient-to-br from-hero-from to-hero-to px-4 py-4 text-white">
             <div className="mx-auto max-w-2xl">
-                <p className="text-sm text-white/70">{fromAmount || "1"} {currencies[fromCurrency] ?? fromCurrency} equals</p>
-                <div className="flex items-baseline justify-between gap-4 mt-1">
+                <p className="text-xs text-white/70">{fromAmount || "1"} {currencies[fromCurrency] ?? fromCurrency} equals</p>
+                <div className="flex items-baseline justify-between gap-4 mt-0.5">
                     {isLoadingRates ? (
                         <div className="flex items-baseline gap-3">
-                            <div className="skeleton-hero h-9 w-48 sm:h-10" />
-                            <div className="skeleton-hero h-7 w-12" />
+                            <div className="skeleton-hero h-8 w-44" />
+                            <div className="skeleton-hero h-6 w-10" />
                         </div>
                     ) : (
-                        <h2 className="text-3xl font-bold tabular-nums tracking-tight sm:text-4xl animate-fade-in">
+                        <h2 className="text-2xl font-bold tabular-nums tracking-tight animate-fade-in">
                             {toAmount || "—"} <span className="text-white/80 font-medium">{toCurrency}</span>
                         </h2>
                     )}
-                    <button className="flex items-center gap-1.5 text-xs text-white/50 cursor-pointer hover:text-white/80 transition-colors">
-                        <Share2 size={14} />
+                    <button className="flex items-center gap-1.5 text-[10px] text-white/50 cursor-pointer hover:text-white/80 transition-colors">
+                        <Share2 size={12} />
                         share
                     </button>
                 </div>
                 {isLoadingRates ? (
-                    <div className="skeleton-hero h-3 w-56 mt-2" />
+                    <div className="skeleton-hero h-2.5 w-48 mt-1.5" />
                 ) : (
-                    <p className="text-xs text-white/50 mt-1 animate-fade-in">
+                    <p className="text-[10px] text-white/50 mt-0.5 animate-fade-in">
                         {currencies[toCurrency] ?? toCurrency} &middot; {rates?.date ?? "—"} &middot;{" "}
                         <a target="_blank" className="underline underline-offset-2 hover:text-white/80" href="https://frankfurter.dev/">Frankfurter</a>
                     </p>
                 )}
 
-                <div className="mt-6 flex items-center gap-2">
+                <div className="mt-3 flex items-center gap-2">
                     <InputGroup className="flex-1 border-white/20 bg-white/10 shadow-none ring-0">
                         <InputGroupInput
                             placeholder="Amount"
