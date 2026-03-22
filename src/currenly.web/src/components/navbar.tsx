@@ -1,5 +1,12 @@
-import { Sun, Moon } from "lucide-react"
+import { Sun, Moon, Info } from "lucide-react"
 import { useTheme } from "@/components/theme-provider"
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog"
 
 const Navbar = () => {
     const { theme, setTheme } = useTheme()
@@ -13,10 +20,34 @@ const Navbar = () => {
                 </h1>
                 <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground">your currency converter</p>
             </div>
-            <button className="relative size-5" onClick={() => setTheme(isLightMode ? "dark" : "light")}>
-                <Sun size={20} className={`absolute inset-0 transition-all duration-300 ${isLightMode ? "rotate-90 scale-0 opacity-0" : "rotate-0 scale-100 opacity-100"}`} />
-                <Moon size={20} className={`absolute inset-0 transition-all duration-300 ${isLightMode ? "rotate-0 scale-100 opacity-100" : "-rotate-90 scale-0 opacity-0"}`} />
-            </button>
+            <div className="flex items-center gap-3">
+                <Dialog>
+                    <DialogTrigger asChild>
+                        <button className="flex items-center justify-center cursor-pointer text-muted-foreground transition-colors hover:text-foreground">
+                            <Info size={20} />
+                        </button>
+                    </DialogTrigger>
+                    <DialogContent className="rounded-none">
+                        <DialogHeader>
+                            <DialogTitle className="text-lg font-bold">
+                                <span className="text-blue-500">Curr</span>enly
+                            </DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-3 text-sm text-muted-foreground">
+                            <p>A simple, fast currency converter that lets you check live exchange rates and view historical trends across multiple currencies.</p>
+                            <p>Exchange rate data is provided by{" "}
+                                <a href="https://frankfurter.dev/" target="_blank" rel="noopener noreferrer" className="text-blue-500 font-semibold hover:underline">
+                                    Frankfurter API
+                                </a>
+                                , an open-source API built on top of data published by the European Central Bank.
+                            </p>
+                        </div>
+                    </DialogContent>
+                </Dialog>
+                <button className="flex items-center justify-center cursor-pointer text-muted-foreground transition-colors hover:text-foreground" onClick={() => setTheme(isLightMode ? "dark" : "light")}>
+                    {isLightMode ? <Moon size={20} /> : <Sun size={20} />}
+                </button>
+            </div>
         </div>
     )
 }

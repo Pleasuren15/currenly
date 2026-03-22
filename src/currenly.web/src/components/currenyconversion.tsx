@@ -22,10 +22,15 @@ type RatesResponse = {
     rates: Record<string, number>
 }
 
-const CurrencyConversion = () => {
+type CurrencyConversionProps = {
+    fromCurrency: string
+    toCurrency: string
+    onFromCurrencyChange: (code: string) => void
+    onToCurrencyChange: (code: string) => void
+}
+
+const CurrencyConversion = ({ fromCurrency, toCurrency, onFromCurrencyChange, onToCurrencyChange }: CurrencyConversionProps) => {
     const [currencies, setCurrencies] = useState<CurrencyMap>({})
-    const [fromCurrency, setFromCurrency] = useState("USD")
-    const [toCurrency, setToCurrency] = useState("ZAR")
     const [rates, setRates] = useState<RatesResponse | null>(null)
     const [fromAmount, setFromAmount] = useState("1")
     const [toAmount, setToAmount] = useState("")
@@ -99,13 +104,13 @@ const CurrencyConversion = () => {
     }
 
     const handleFromChange = (code: string) => {
-        if (code === toCurrency) setToCurrency(fromCurrency)
-        setFromCurrency(code)
+        if (code === toCurrency) onToCurrencyChange(fromCurrency)
+        onFromCurrencyChange(code)
     }
 
     const handleToChange = (code: string) => {
-        if (code === fromCurrency) setFromCurrency(toCurrency)
-        setToCurrency(code)
+        if (code === fromCurrency) onFromCurrencyChange(toCurrency)
+        onToCurrencyChange(code)
     }
 
     return (
