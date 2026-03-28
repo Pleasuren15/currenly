@@ -7,15 +7,23 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policy =>
+    options.AddPolicy("AllowWeb", policy =>
     {
-        policy.AllowAnyOrigin()
+        policy.WithOrigins(
+                "https://currenly.vercel.app",
+                "http://localhost:5173",
+                "http://localhost:3000",
+                "https://localhost:5173"
+              )
               .AllowAnyMethod()
-              .AllowAnyHeader();
+              .AllowAnyHeader()
+              .AllowCredentials();
     });
 });
 
 var app = builder.Build();
+
+app.UseCors("AllowWeb");
 
 // Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
@@ -70,5 +78,4 @@ app.MapGet("/", () =>
 .WithSummary("Health check endpoint")
 .WithDescription("Returns a simple message to confirm that the API is running");
 
-app.UseCors("AllowAll");
 app.Run();

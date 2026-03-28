@@ -82,7 +82,7 @@ const CurrencyConversion = ({ fromCurrency, toCurrency, onFromCurrencyChange, on
         window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
 
         try {
-            const baseUrl = "https://currenly-dhbzdvfnehgyaqej.southafricanorth-01.azurewebsites.net/";
+            const baseUrl = "https://currenly-dhbzdvfnehgyaqej.southafricanorth-01.azurewebsites.net";
             const reponse = await fetch(`${baseUrl}/send-email?subject=${encodeURIComponent(subject)}&htmlBody=${encodeURIComponent(body)}`, {
                 method: 'POST'
             })
