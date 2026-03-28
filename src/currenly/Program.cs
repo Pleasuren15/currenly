@@ -5,6 +5,15 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
 builder.Services.AddOpenApi();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
 
 var app = builder.Build();
 
@@ -16,15 +25,15 @@ if (app.Environment.IsDevelopment())
 }
 
 // https://resend.com/docs/api-reference/emails/send-email
-app.MapPost("/send-email", async () =>
+app.MapPost("/send-email", async (string subject, string htmlBody) =>
 {
-    IResend resend = ResendClient.Create("re_xxxxxxxxxxxxxxxxxxxxx");
+    IResend resend = ResendClient.Create("re_ioXACVEV_FiJsGuXotVqrmYQA2eVrnYNm");
     var response = await resend.EmailSendAsync(new EmailMessage()
     {
-        From = "Currently <onboarding@resend.dev>",
+        From = "Currenly <onboarding@resend.dev>",
         To = "pleasuren15@gmail.com",
-        Subject = $"Currently Update {DateTime.UtcNow:d}",
-        HtmlBody = $"<p>Currently Update {DateTime.UtcNow:d}</p><p>Check out the latest updates on our website!</p>",
+        Subject = subject,
+        HtmlBody = htmlBody,
         ReplyTo = "pleasuren16@gmail.com"
     });
 
@@ -39,4 +48,5 @@ app.MapGet("/", () => "API is running")
 .WithSummary("Health check endpoint")
 .WithDescription("Returns a simple message to confirm that the API is running");
 
+app.UseCors("AllowAll");
 app.Run();

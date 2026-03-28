@@ -1,5 +1,5 @@
 <Solution>
   <Folder Name="/src/">
-    <Project Path="src/currenly/currenly.csproj" />
+    <Project Path="src/currenly/currenly.api.csproj" />
   </Folder>
 </Solution>

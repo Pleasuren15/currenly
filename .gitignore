@@ -56,3 +56,4 @@ nunit-*.xml
 # React
 **/node_modules/
 src/currenly.web/package-lock.json
+/.vs/currenly.slnx

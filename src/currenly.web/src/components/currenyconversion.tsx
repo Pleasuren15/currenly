@@ -76,6 +76,22 @@ const CurrencyConversion = ({ fromCurrency, toCurrency, onFromCurrencyChange, on
         fetchRates()
     }, [fromCurrency])
 
+    const sendEmail = async () => {
+        const subject = `Currency Conversion: ${fromAmount} ${fromCurrency} to ${toAmount} ${toCurrency}`
+        const body = `As of ${rates?.date}, ${fromAmount} ${currencies[fromCurrency] ?? fromCurrency} equals ${toAmount} ${currencies[toCurrency] ?? toCurrency}.\n\nExchange Rate: 1 ${fromCurrency} = ${(rates?.rates[toCurrency] ?? "—")} ${toCurrency}\n\nData provided by Frankfurter API.`
+        window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
+
+        try {
+            const reponse = await fetch(`https://localhost:7000/send-email?subject=${encodeURIComponent(subject)}&htmlBody=${encodeURIComponent(body)}`, {
+                method: 'POST'
+            })
+            console.log("Email send response:", reponse)
+        }
+        catch (error) {
+            console.error("Error sharing conversion:", error)
+        }
+    }
+
     const convertFromTo = useCallback((amount: string) => {
         const num = parseFloat(amount)
         if (!rates || isNaN(num)) {
@@ -142,7 +158,7 @@ const CurrencyConversion = ({ fromCurrency, toCurrency, onFromCurrencyChange, on
                             {toAmount || "—"} <span className="text-white/80 font-medium">{toCurrency}</span>
                         </h2>
                     )}
-                    <button className="flex items-center gap-1.5 text-[10px] text-white/50 cursor-pointer hover:text-white/80 transition-colors">
+                    <button className="flex items-center gap-1.5 text-[10px] text-white/50 cursor-pointer hover:text-white/80 transition-colors" onClick={sendEmail}>
                         <Share2 size={12} />
                         share
                     </button>
