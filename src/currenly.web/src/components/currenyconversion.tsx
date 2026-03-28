@@ -35,6 +35,9 @@ const CurrencyConversion = ({ fromCurrency, toCurrency, onFromCurrencyChange, on
     const [fromAmount, setFromAmount] = useState("1")
     const [toAmount, setToAmount] = useState("")
     const [isLoadingRates, setIsLoadingRates] = useState(true)
+    const [emailStatus, setEmailStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle')
+    const [showToast, setShowToast] = useState(false)
+    const [toastMessage, setToastMessage] = useState('')
     const fetchedRef = useRef(false)
 
     useEffect(() => {
@@ -77,20 +80,40 @@ const CurrencyConversion = ({ fromCurrency, toCurrency, onFromCurrencyChange, on
     }, [fromCurrency])
 
     const sendEmail = async () => {
+        setEmailStatus('sending')
         const subject = `Currency Conversion: ${fromAmount} ${fromCurrency} to ${toAmount} ${toCurrency}`
         const body = `As of ${rates?.date}, ${fromAmount} ${currencies[fromCurrency] ?? fromCurrency} equals ${toAmount} ${currencies[toCurrency] ?? toCurrency}.\n\nExchange Rate: 1 ${fromCurrency} = ${(rates?.rates[toCurrency] ?? "—")} ${toCurrency}\n\nData provided by Frankfurter API.`
-        window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
 
         try {
             const baseUrl = "https://currenly-dhbzdvfnehgyaqej.southafricanorth-01.azurewebsites.net";
-            const reponse = await fetch(`${baseUrl}/send-email?subject=${encodeURIComponent(subject)}&htmlBody=${encodeURIComponent(body)}`, {
+            const response = await fetch(`${baseUrl}/send-email?subject=${encodeURIComponent(subject)}&htmlBody=${encodeURIComponent(body)}`, {
                 method: 'POST'
             })
-            console.log("Email send response:", reponse)
+            
+            if (response.ok) {
+                setEmailStatus('success')
+                setToastMessage('Email sent successfully! 📧')
+                setShowToast(true)
+                console.log("Email sent successfully:", response)
+            } else {
+                setEmailStatus('error')
+                setToastMessage('Failed to send email. Please try again.')
+                setShowToast(true)
+                console.error("Email send failed:", response.statusText)
+            }
         }
         catch (error) {
+            setEmailStatus('error')
+            setToastMessage('Email send failed. Check your connection.')
+            setShowToast(true)
             console.error("Error sharing conversion:", error)
         }
+
+        // Reset status after 3 seconds
+        setTimeout(() => {
+            setEmailStatus('idle')
+            setShowToast(false)
+        }, 3000)
     }
 
     const convertFromTo = useCallback((amount: string) => {
@@ -145,7 +168,27 @@ const CurrencyConversion = ({ fromCurrency, toCurrency, onFromCurrencyChange, on
     }
 
     return (
-        <section className="bg-gradient-to-br from-hero-from to-hero-to px-4 py-4 text-white">
+        <section className="bg-gradient-to-br from-hero-from to-hero-to px-4 py-4 text-white relative">
+            {/* Toast Notification */}
+            {showToast && (
+                <div 
+                    className={`absolute top-2 left-1/2 transform -translate-x-1/2 z-50 px-4 py-2 rounded-lg shadow-lg transition-all duration-300 ${
+                        emailStatus === 'success' 
+                            ? 'bg-green-500/90 text-white' 
+                            : 'bg-red-500/90 text-white'
+                    } animate-fade-in`}
+                >
+                    <div className="flex items-center gap-2 text-sm font-medium">
+                        {emailStatus === 'success' ? (
+                            <span className="text-lg">✅</span>
+                        ) : (
+                            <span className="text-lg">❌</span>
+                        )}
+                        {toastMessage}
+                    </div>
+                </div>
+            )}
+            
             <div className="mx-auto max-w-2xl">
                 <p className="text-xs text-white/70">{fromAmount || "1"} {currencies[fromCurrency] ?? fromCurrency} equals</p>
                 <div className="flex items-baseline justify-between gap-4 mt-0.5">
@@ -159,9 +202,40 @@ const CurrencyConversion = ({ fromCurrency, toCurrency, onFromCurrencyChange, on
                             {toAmount || "—"} <span className="text-white/80 font-medium">{toCurrency}</span>
                         </h2>
                     )}
-                    <button className="flex items-center gap-1.5 text-[10px] text-white/50 cursor-pointer hover:text-white/80 transition-colors" onClick={sendEmail}>
-                        <Share2 size={12} />
-                        share
+                    <button 
+                        className={`flex items-center gap-1.5 text-[10px] cursor-pointer transition-colors ${
+                            emailStatus === 'sending' 
+                                ? 'text-white/70 cursor-wait' 
+                                : emailStatus === 'success'
+                                ? 'text-green-400 hover:text-green-300'
+                                : emailStatus === 'error'
+                                ? 'text-red-400 hover:text-red-300'
+                                : 'text-white/50 hover:text-white/80'
+                        }`} 
+                        onClick={sendEmail}
+                        disabled={emailStatus === 'sending'}
+                    >
+                        {emailStatus === 'sending' ? (
+                            <>
+                                <div className="w-3 h-3 border border-white/30 border-t-white/70 rounded-full animate-spin" />
+                                sending...
+                            </>
+                        ) : emailStatus === 'success' ? (
+                            <>
+                                <span className="text-xs">✓</span>
+                                sent
+                            </>
+                        ) : emailStatus === 'error' ? (
+                            <>
+                                <span className="text-xs">✗</span>
+                                failed
+                            </>
+                        ) : (
+                            <>
+                                <Share2 size={12} />
+                                share
+                            </>
+                        )}
                     </button>
                 </div>
                 {isLoadingRates ? (
